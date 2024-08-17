@@ -9,6 +9,7 @@ const supabase = createClient('https://dzirokzkywhgqixcvkrz.supabase.co', 'eyJhb
 
 export default function Home() {
     const [data, setData] = useState(null);
+    const [subjects, setSubjects] = useState([]);
     const [inputValue, setInputValue] = useState('');
 
     const handleInputChange = (event) => {
@@ -24,7 +25,20 @@ export default function Home() {
             if (error) console.error(error); // Handle potential errors
         }
 
+        async function fetchSubjects() {
+            const { data, error } = await supabase
+            .from('Questions')
+            .select('subject', { distinct: true });
+
+            if (error) {
+                console.error(error);
+            } else {
+                setSubjects(data.map(item => item.subject));
+            }
+        }
+
         fetchData();
+        fetchSubjects();
     }, [inputValue]); // Add inputValue to the dependency array
 
     useEffect(() => {
@@ -56,7 +70,16 @@ export default function Home() {
                   </div>
                 ))}
               </div>
+
             </div>
+            <div className='mt-4'>
+                <h2 className='text-2xl'>Available Subjects:</h2>
+                <ul className='list-disc list-inside text-lime-300'>
+                  {subjects.map((subject, index) => (
+                    <li key={index}>{subject}</li>
+                  ))}
+                </ul>
+              </div>
           </div>
         </>
       );
